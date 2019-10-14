@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		 xmlns="http://java.sun.com/xml/ns/javaee" 
+		 xmlns:web="http://java.sun.com/xml/ns/javaee" 
+		 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" 
+		 version="3.0">
+	<display-name>1.SpringMVC_helloword</display-name>
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>	 
+	<!-- SpringMVC思想是有一个前端控制器能拦截所有请求，并智能派发；
+		 这个前端控制器是一个Servlet，应该在web.xml中配置这个Servlet来拦截所有请求
+	 -->
+	 <!-- The front controller of this Spring Web application, responsible for handling all application requests -->
+	<servlet>
+		<servlet-name>springDispatcherServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		
+		<!-- 该Servlet的初始化参数 -->
+		<init-param>
+			<!-- contextConfigLocation：指定SpringMVC配置文件位置 -->
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:springmvc.xml</param-value>
+		</init-param>
+		
+		<!-- Servlet启动加载，servlet原本是第一次访问创建对象，
+			 load-on-startup：服务器启动的时候创建对象，值越小，优先级也越高，越先创建对象
+		 -->
+		<load-on-startup>1</load-on-startup>
+		
+	</servlet>
+		<!-- 
+			处理*.jsp是tomcat要做的事情，所有项目中的小web.xml都是继承于服务器的大web.xml
+			DefaultServlet是tomcat中处理静态资源的
+				（除了.jsp和servlet剩下的都是静态资源）
+				index.html：静态资源，正常情况下，Tomcat会找到这个资源并返回，让页面显示出来
+			1）服务器的大web.xml中有一个DefaultServlet是url-pattern=/
+			2）我们的配置中前端控制器url-pattern也是=/，所以它就相当于把父类大web.xml中的url-pattern=/给禁用了，
+			所以没有了大web.xml就静态资源无效了，就会来到前端控制器DispatcherServlet看哪个方法的RequestMapping是
+			这个index.html就调用哪个方法
+			3）为什么jsp又能访问呢，因为大web.xml有JspServlet所以不拦除非你url-pattern=*.jsp
+			4）/*直接拦截所有请求，我们写/，也是为了迎合后来的Rest风格的URL地址
+		 -->
+	<!-- Map all requests to the DispatcherServlet for handling -->
+	<servlet-mapping>
+		<servlet-name>springDispatcherServlet</servlet-name>
+		<!-- /*和/都是拦截所有请求
+			 / 会拦截所有请求，但不会拦截jsp，jsp访问正常
+			 /*的范围更大，还会拦截到*.jsp这些请求，一旦拦截jsp页面就不能显示了
+		 -->
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+</web-app>
